@@ -4,28 +4,29 @@ import speech_recognition as sr
 
 sr.AudioFile.FLAC_CONVERTER = "/opt/homebrew/bin/flac"
 
-openai.api_key = ''
+openai.api_key = 'sk-svcacct-cNpEjHaToqE8f1_oq5mtOav-MW58kAAPPnY2lzO3W3FdX1lTM4-B88AF-DU36xuVT3BlbkFJiYStWmktQpsH4HTId447QBQGCh4jmzqdiyzaD-Lk-hudqrQbinAEXD8tlcRAO9kA'
 
-# Set up text-to-speech engine
 engine = pyttsx3.init()
 
 
 def get_object_description(object_name, conversation_history):
+    # Generate the prompt based on the object name
     prompt = f"{object_name}. What is it used for in 10 words max?"
 
-    # Append the conversation to the messages
+    # Append user's query to the conversation history
     conversation_history.append({"role": "user", "content": prompt})
 
-    # Updated API call for chat-based completions
     response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",  # Use the updated chat model
         messages=conversation_history,
         max_tokens=150
     )
 
+    # Extract and append the assistant's reply to the conversation history
     assistant_reply = response['choices'][0]['message']['content'].strip()
     conversation_history.append(
         {"role": "assistant", "content": assistant_reply})
+
     return assistant_reply, conversation_history
 
 # Function for text-to-speech
@@ -36,14 +37,11 @@ def speak(text):
     engine.runAndWait()
 
 
-# Initialize conversation history
 conversation_history = [
-    {"role": "system", "content": "You are a helpful assistant."}]
+    {"role": "system", "content": "You are a helpful assistant."}
+]
 
-# Initialize the recognizer
 recognizer = sr.Recognizer()
-
-# Function to capture speech from the microphone and return it as text
 
 
 def listen():
@@ -64,16 +62,14 @@ def listen():
             return None
 
 
-# Start with a detected object (this can be customized further)
 detected_object = "cup"  # Example object detected by the camera
 
-# Get the initial description of the object
+
 description, conversation_history = get_object_description(
     detected_object, conversation_history)
 print(f"Description of {detected_object}: {description}")
 speak(description)
 
-# Continuous interaction loop using microphone input
 while True:
     user_input = listen()  # Listen for user speech
     if user_input:
@@ -83,7 +79,6 @@ while True:
 
         conversation_history.append({"role": "user", "content": user_input})
 
-        # Get response from OpenAI API
         response, conversation_history = get_object_description(
             user_input, conversation_history)
 
