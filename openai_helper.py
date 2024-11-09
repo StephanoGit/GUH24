@@ -2,6 +2,7 @@ import openai
 import pyttsx3
 import speech_recognition as sr
 
+sr.AudioFile.FLAC_CONVERTER = "/opt/homebrew/bin/flac"
 
 openai.api_key = ''
 
