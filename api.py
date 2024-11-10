@@ -23,7 +23,7 @@ class API:
 
 
     def innit_arduino(self, port  = '/dev/ttyACM0'):
-        ser = serial.serial(port, 9600, timeout=1)
+        ser = serial.Serial(port, 9600, timeout=1)
         return ser
 
 
