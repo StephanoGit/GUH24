@@ -19,24 +19,22 @@ class API:
         self.recorder = WebcamRecorder(video_source=0)  # Adjust the index if needed
         self.openai_helper = OpenAIHelper()
         self.face_app = AnimatedFaceApp()
-
-
-
-    def innit_arduino(self, port  = '/dev/ttyACM0'):
-        ser = serial.Serial(port, 9600, timeout=1)
-        return ser
+        try:
+            self.arduino = serial.Serial('/dev/ttyACM0', 9600, timeout=1)
+            time.sleep(2)
+        except Exception as e:
+            pass
 
 
     def send_to_arduino(self, ser, command, speed = 100):
         cmd = f"{command},{speed}\n"
-        ser.write(cmd.encode())
+        self.arduino.write(cmd.encode())
         time.sleep(0.1)
 
 
 
 
     def animate_text(self, recorder, face_app, openai_helper):
-        ser = self.innit_arduino()
 
         while True:
                 response = None
@@ -74,23 +72,23 @@ class API:
                                             response = response * 2
 
                             elif 'forward' in user_input.lower():
-                                self.send_to_arduino(ser, 'F', 100)
+                                self.send_to_arduino(self.arduino, 'F', 100)
                                 response = "Moving forward"
 
                             elif 'backward' in user_input.lower():
-                                self.send_to_arduino(ser, 'B', 100)
+                                self.send_to_arduino(self.arduino, 'B', 100)
                                 response = "Moving backward"
 
                             elif 'left' in user_input.lower():
-                                self.send_to_arduino(ser, 'L', 100)
+                                self.send_to_arduino(self.arduino, 'L', 100)
                                 response = "Moving left"
 
                             elif 'right' in user_input.lower():
-                                self.send_to_arduino(ser, 'R', 100)
+                                self.send_to_arduino(self.arduino, 'R', 100)
                                 response = "Moving right"
 
                             elif 'follow' in user_input.lower():
-                                self.send_to_arduino(ser, 'F', 100)
+                                self.send_to_arduino(self.arduino, 'F', 100)
                                 response = "Following Someone"
 
                                 for _ in range(10):
@@ -107,15 +105,15 @@ class API:
 
                                                 if abs(center_x - frame_center_x) > 30:  # Tolerance of 30 pixels
                                                     if center_x < frame_center_x:
-                                                        self.send_to_arduino(ser, 'l', 100)  # Move left
+                                                        self.send_to_arduino(self.arduino, 'l', 100)  # Move left
                                                     else:
-                                                        self.send_to_arduino(ser, 'r', 100)  # Move right
+                                                        self.send_to_arduino(self.arduino, 'r', 100)  # Move right
                                                 else:
                                                     # Person is roughly centered
                                                     if height < 200:  # Assume height threshold for distance
-                                                        self.send_to_arduino(ser, 'f', 100)  # Move forward
+                                                        self.send_to_arduino(self.arduino, 'f', 100)  # Move forward
                                                     else:
-                                                        self.send_to_arduino(ser, 's', 0)  # Stop if close enough
+                                                        self.send_to_arduino(self.arduino, 's', 0)  # Stop if close enough
                                                         print("Person reached. Stopping.")
                                                         break  # Exit follow mode
                                     else:
@@ -141,7 +139,7 @@ class API:
                                 face_app.animate_text(response)
 
                                 for move, speed in dance_moves:
-                                    self.send_to_arduino(ser, move, speed)
+                                    self.send_to_arduino(self.arduino, move, speed)
                                     time.sleep(1)
 
                                 response = None
@@ -159,7 +157,7 @@ class API:
 
                 except KeyboardInterrupt:
                     print("Program terminated.")
-                    ser.close()
+                    self.arduino.close()
                     break
 
 
