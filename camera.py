@@ -23,7 +23,6 @@ class WebcamRecorder(threading.Thread):
         if not self.capture.isOpened():
             raise ValueError(f"Unable to open video source {self.video_source}")
 
-
     def run(self):
         try:
             while self.is_running:
@@ -35,8 +34,6 @@ class WebcamRecorder(threading.Thread):
                 time.sleep(0.01)  # Adjust sleep time if needed
         finally:
             self.capture.release()
-
-
 
     def stop(self):
         """Stop the video recording."""
@@ -58,7 +55,6 @@ class WebcamRecorder(threading.Thread):
 
             detections[label_name].append([x1, y1, x2, y2, confidence])
         return detections
-
 
     def run_inference(self, frame):
         if frame is None:
@@ -96,13 +92,11 @@ class WebcamRecorder(threading.Thread):
                     if face_result:
                         label_name = "KNOWN PERSON"
 
-
             if label not in detections:
                 detections[label_name] = []
             detections[label_name].append([x1, y1, x2, y2, confidence])
 
         return detections
-
 
     def get_frame(self):
         frame = self.frame
@@ -114,37 +108,3 @@ class WebcamRecorder(threading.Thread):
                 cv2.putText(frame, f"{det_class} {confidence:.2f}", (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                             (0, 255, 0), 2)
         return frame, detections
-
-
-
-
-
-# Usage example
-
-        
-def main():
-    # Initialize the recorder with the correct video source (e.g., 0 or 1)
-    recorder = WebcamRecorder(video_source=1)  # Adjust the index if needed
-    recorder.start()  # Start capturing frames in a separate thread
-
-    try:
-        while True:
-            frame, detections = recorder.get_frame()
-            if frame is None:
-                print("Error: Frame capture failed or is None.")
-                continue
-
-            # Display the processed frame with bounding boxes and labels
-            cv2.imshow("Webcam with Detection", frame)
-
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
-    finally:
-        # Stop the recording and release resources
-        recorder.stop()
-        recorder.join()  # Ensure the thread completes before closing
-        cv2.destroyAllWindows()
-
-
-if __name__ == "__main__":
-    main()

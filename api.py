@@ -4,7 +4,7 @@ from openai_helper import get_object_description, speak, conversation_history
 
 class API:
     def __init__(self):
-        self.recorder = WebcamRecorder(video_source=1)  # Adjust the index if needed
+        self.recorder = WebcamRecorder(video_source=0)  # Adjust the index if needed
 
     def start_camera_and_speak(self):
         """Start the camera to capture frames, detect objects, and use GPT to describe them."""
