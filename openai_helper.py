@@ -9,6 +9,7 @@ openai.api_key = 'sk-svcacct-cNpEjHaToqE8f1_oq5mtOav-MW58kAAPPnY2lzO3W3FdX1lTM4-
 
 engine = pyttsx3.init()
 
+
 def get_object_description(object_name, conversation_history):
     """Get a description from GPT based on the object name."""
     prompt = f"{object_name}. What is it used for in 10 words max?"
@@ -21,25 +22,29 @@ def get_object_description(object_name, conversation_history):
             max_tokens=150
         )
         assistant_reply = response['choices'][0]['message']['content'].strip()
-        conversation_history.append({"role": "assistant", "content": assistant_reply})
+        conversation_history.append(
+            {"role": "assistant", "content": assistant_reply})
         return assistant_reply, conversation_history
     except openai.error.OpenAIError as e:
         print(f"An error occurred with the OpenAI API: {e}")
         return "I'm sorry, I couldn't process your request.", conversation_history
 
+
 def speak(text):
-    """Split long text into smaller chunks and speak them."""
+
     max_length = 150
     chunks = [text[i:i + max_length] for i in range(0, len(text), max_length)]
     for chunk in chunks:
         engine.say(chunk)
         engine.runAndWait()
 
+
 conversation_history = [
     {"role": "system", "content": "You are a helpful assistant."}
 ]
 
 recognizer = sr.Recognizer()
+
 
 def listen():
     """Capture and return spoken input as text."""
@@ -62,9 +67,11 @@ def listen():
             print("\nProgram interrupted by user.")
             return "stop"
 
+
 # Initial interaction
 detected_object = "cup"
-description, conversation_history = get_object_description(detected_object, conversation_history)
+description, conversation_history = get_object_description(
+    detected_object, conversation_history)
 print(f"Description of {detected_object}: {description}")
 speak(description)
 
@@ -81,7 +88,8 @@ while True:
                 break
 
             # Get response from GPT
-            response, conversation_history = get_object_description(user_input, conversation_history)
+            response, conversation_history = get_object_description(
+                user_input, conversation_history)
 
             print(f"Assistant: {response}")
             speak(response)
