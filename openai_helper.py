@@ -67,22 +67,13 @@ class OpenAIHelper:
             print(f"An error occurred with the OpenAI API: {e}")
             return "I'm sorry, I couldn't process your request."
 
-    def speak(self, text):
-        """
-        Split long text into smaller chunks and speak them.
-        """
-        max_length = 150
-        chunks = [text[i:i + max_length] for i in range(0, len(text), max_length)]
-        for chunk in chunks:
-            self.engine.say(chunk)
-            self.engine.runAndWait()
+
 
     def listen(self):
         """
         Capture and return spoken input as text.
         """
         with sr.Microphone() as source:
-            print(sr.Microphone.device_index)
             print("Listening for your question...")
             self.recognizer.adjust_for_ambient_noise(source)
             try:
