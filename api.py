@@ -7,6 +7,8 @@ from camera import WebcamRecorder
 from openai_helper import OpenAIHelper
 from face_animation import AnimatedFaceApp
 
+import serial
+
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -19,9 +21,27 @@ class API:
         self.face_app = AnimatedFaceApp()
 
 
+
+    def innit_arduino(self, port  = '/dev/ttyACM0'):
+        ser = serial.Serial(port, 9600, timeout=1)
+        return ser
+
+
+    def send_to_arduino(self, ser, command, speed = 100):
+
+
+
+        cmd = f"{command},{speed}\n"
+        ser.write(cmd.encode())
+        time.sleep(0.1)
+
+
+
+
     def animate_text(self, recorder, face_app, openai_helper):
+        ser = self.innit_arduino()
+
         while True:
-                response = None
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -55,6 +75,54 @@ class API:
                                             response = "Stranger danger "
                                             response = response * 2
 
+                            elif 'forward' in user_input.lower():
+                                self.send_to_arduino(ser, 'f', 100)
+                                response = "Moving forward"
+
+                            elif 'backward' in user_input.lower():
+                                self.send_to_arduino(ser, 'b', 100)
+                                response = "Moving backward"
+
+                            elif 'left' in user_input.lower():
+                                self.send_to_arduino(ser, 'l', 100)
+                                response = "Moving left"
+
+                            elif 'right' in user_input.lower():
+                                self.send_to_arduino(ser, 'r', 100)
+                                response = "Moving right"
+
+                            elif 'follow' in user_input.lower():
+                                self.send_to_arduino(ser, 'f', 100)
+                                response = "Following Someone"
+
+                                for _ in range(10):
+                                    frame, detections = recorder.get_frame()
+                                    if 'person' in detections.keys() or 'KNOWN PERSON' in detections.keys():
+                                        for detected_object in detections.keys():
+                                            if detected_object == 'person' or detected_object == 'KNOWN PERSON':
+                                                person_bndbox = detections[detected_object][0]
+                                                x1, y1, x2, y2, _ = person_bndbox
+                                                width = x2 - x1
+                                                height = y2 - y1
+                                                center_x = x1 + width // 2
+                                                frame_center_x = frame.shape[1] // 2
+
+                                                if abs(center_x - frame_center_x) > 30:  # Tolerance of 30 pixels
+                                                    if center_x < frame_center_x:
+                                                        self.send_to_arduino(ser, 'l', 100)  # Move left
+                                                    else:
+                                                        self.send_to_arduino(ser, 'r', 100)  # Move right
+                                                else:
+                                                    # Person is roughly centered
+                                                    if height < 200:  # Assume height threshold for distance
+                                                        self.send_to_arduino(ser, 'f', 100)  # Move forward
+                                                    else:
+                                                        self.send_to_arduino(ser, 's', 0)  # Stop if close enough
+                                                        print("Person reached. Stopping.")
+                                                        break  # Exit follow mode
+                                    else:
+                                        response = "No target sir"
+
                             else:
                                 response = openai_helper.get_conversation(user_input)
 
@@ -72,6 +140,7 @@ class API:
 
                 except KeyboardInterrupt:
                     print("Program terminated.")
+                    ser.close()
                     break
 
 
@@ -92,6 +161,7 @@ class API:
             self.recorder.stop()
             self.recorder.join()
             cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     api = API()
