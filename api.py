@@ -6,7 +6,7 @@ from threading import Thread
 from camera import WebcamRecorder
 from openai_helper import OpenAIHelper
 from face_animation import AnimatedFaceApp
-
+# aaa
 import serial
 
 import warnings
