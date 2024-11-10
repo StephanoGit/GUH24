@@ -5,7 +5,7 @@ import speech_recognition as sr
 sr.AudioFile.FLAC_CONVERTER = "/opt/homebrew/bin/flac"
 
 # Replace with a method for securely handling the API key
-openai.api_key = ''
+openai.api_key = 'sk-svcacct-cNpEjHaToqE8f1_oq5mtOav-MW58kAAPPnY2lzO3W3FdX1lTM4-B88AF-DU36xuVT3BlbkFJiYStWmktQpsH4HTId447QBQGCh4jmzqdiyzaD-Lk-hudqrQbinAEXD8tlcRAO9kA'
 
 engine = pyttsx3.init()
 

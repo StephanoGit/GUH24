@@ -2,7 +2,7 @@ import cv2
 import threading
 import time
 from ultralytics import YOLO
-import GUH24.face_recognition.model.face_recognition as face_recognition
+import face_recognition as face_recognition
 import torch, numpy as np, os
 
 class WebcamRecorder(threading.Thread):
@@ -15,7 +15,7 @@ class WebcamRecorder(threading.Thread):
         self.model = YOLO("yolo11n.pt")
 
         # load the known faces
-        known_faces_dir = "directory with images of known faces"
+        known_faces_dir = "known_faces_dir"
         known_faces = [face_recognition.load_image_file(f"{known_faces_dir}/{f}") for f in os.listdir(known_faces_dir)]
         self.known_faces = [face_recognition.face_encodings(face)[0] for face in known_faces]
 
@@ -25,13 +25,17 @@ class WebcamRecorder(threading.Thread):
 
 
     def run(self):
-        """Continuously capture frames in a separate thread."""
-        while self.is_running:
-            ret, frame = self.capture.read()
-            if not ret:
-                break
-            self.frame = frame
-            time.sleep(0.01)  # Adjust the sleep time if needed
+        try:
+            while self.is_running:
+                ret, frame = self.capture.read()
+                if not ret:
+                    print("Warning: Frame capture failed.")
+                    continue  # Skip this iteration
+                self.frame = frame
+                time.sleep(0.01)  # Adjust sleep time if needed
+        finally:
+            self.capture.release()
+
 
 
     def stop(self):
@@ -116,25 +120,31 @@ class WebcamRecorder(threading.Thread):
 
 
 # Usage example
-def main():
-    # Start recording in a separate thread
-    recorder = WebcamRecorder(video_source=0)
-    recorder.start()
 
-    # Display frames in the main thread
+        
+def main():
+    # Initialize the recorder with the correct video source (e.g., 0 or 1)
+    recorder = WebcamRecorder(video_source=1)  # Adjust the index if needed
+    recorder.start()  # Start capturing frames in a separate thread
+
     try:
         while True:
-            frame = recorder.get_frame()
-            if frame is not None:
-                cv2.imshow("Webcam", frame)
+            frame, detections = recorder.get_frame()
+            if frame is None:
+                print("Error: Frame capture failed or is None.")
+                continue
+
+            # Display the processed frame with bounding boxes and labels
+            cv2.imshow("Webcam with Detection", frame)
 
             if cv2.waitKey(1) & 0xFF == ord('q'):
                 break
     finally:
         # Stop the recording and release resources
         recorder.stop()
-        recorder.join()
+        recorder.join()  # Ensure the thread completes before closing
         cv2.destroyAllWindows()
+
 
 if __name__ == "__main__":
     main()
