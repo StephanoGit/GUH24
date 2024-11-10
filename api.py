@@ -28,9 +28,6 @@ class API:
 
 
     def send_to_arduino(self, ser, command, speed = 100):
-
-
-
         cmd = f"{command},{speed}\n"
         ser.write(cmd.encode())
         time.sleep(0.1)
@@ -42,6 +39,7 @@ class API:
         ser = self.innit_arduino()
 
         while True:
+                response = None
 
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
@@ -123,6 +121,31 @@ class API:
                                     else:
                                         response = "No target sir"
 
+                            elif 'boogie' in user_input.lower() or 'dance' in user_input.lower():
+                                dance_moves = [
+                                    ('l', 100),
+                                    ('r', 100),
+                                    ('f', 150),
+                                    ('b', 150),
+                                    ('SPIN_LEFT', 120),
+                                    ('SPIN_RIGHT', 120),
+                                    ('l', 100),
+                                    ('r', 100),
+                                    ('f', 150),
+                                    ('b', 150),
+                                    ('SPIN_LEFT', 120),
+                                    ('SPIN_RIGHT', 120)
+                                ]
+
+                                response = 'Never gonna give you up   Never gonna let you down   Never gonna run around and desert you   Never gonna make you cry   Never gonna say goodbye   Never gonna tell a lie and hurt you'
+                                face_app.animate_text(response)
+
+                                for move, speed in dance_moves:
+                                    self.send_to_arduino(ser, move, speed)
+                                    time.sleep(1)
+
+                                response = None
+
                             else:
                                 response = openai_helper.get_conversation(user_input)
 
@@ -132,10 +155,6 @@ class API:
                             l = 0.33 * len(response.split()) + 1
                             print(l)
                             time.sleep(l)
-
-
-
-
 
 
                 except KeyboardInterrupt:
