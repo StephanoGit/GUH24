@@ -23,7 +23,7 @@ class API:
 
 
     def innit_arduino(self, port  = '/dev/ttyACM0'):
-        ser = serial.Serial(port, 9600, timeout=1)
+        ser = serial.serial(port, 9600, timeout=1)
         return ser
 
 
@@ -74,23 +74,23 @@ class API:
                                             response = response * 2
 
                             elif 'forward' in user_input.lower():
-                                self.send_to_arduino(ser, 'f', 100)
+                                self.send_to_arduino(ser, 'F', 100)
                                 response = "Moving forward"
 
                             elif 'backward' in user_input.lower():
-                                self.send_to_arduino(ser, 'b', 100)
+                                self.send_to_arduino(ser, 'B', 100)
                                 response = "Moving backward"
 
                             elif 'left' in user_input.lower():
-                                self.send_to_arduino(ser, 'l', 100)
+                                self.send_to_arduino(ser, 'L', 100)
                                 response = "Moving left"
 
                             elif 'right' in user_input.lower():
-                                self.send_to_arduino(ser, 'r', 100)
+                                self.send_to_arduino(ser, 'R', 100)
                                 response = "Moving right"
 
                             elif 'follow' in user_input.lower():
-                                self.send_to_arduino(ser, 'f', 100)
+                                self.send_to_arduino(ser, 'F', 100)
                                 response = "Following Someone"
 
                                 for _ in range(10):
@@ -123,18 +123,18 @@ class API:
 
                             elif 'boogie' in user_input.lower() or 'dance' in user_input.lower():
                                 dance_moves = [
-                                    ('l', 100),
-                                    ('r', 100),
-                                    ('f', 150),
-                                    ('b', 150),
-                                    ('SPIN_LEFT', 120),
-                                    ('SPIN_RIGHT', 120),
-                                    ('l', 100),
-                                    ('r', 100),
-                                    ('f', 150),
-                                    ('b', 150),
-                                    ('SPIN_LEFT', 120),
-                                    ('SPIN_RIGHT', 120)
+                                    ('L', 100),
+                                    ('R', 100),
+                                    ('F', 150),
+                                    ('B', 150),
+                                    ('R', 120),
+                                    ('R', 120),
+                                    ('L', 100),
+                                    ('R', 100),
+                                    ('F', 150),
+                                    ('B', 150),
+                                    ('L', 120),
+                                    ('R', 120)
                                 ]
 
                                 response = 'Never gonna give you up   Never gonna let you down   Never gonna run around and desert you   Never gonna make you cry   Never gonna say goodbye   Never gonna tell a lie and hurt you'
